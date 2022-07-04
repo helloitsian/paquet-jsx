@@ -1,7 +1,11 @@
 {
   "name": "paquet-jsx",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A JSX parsing mutator for paquet.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/helloitsian/paquet-jsx"
+  },
   "main": "paquet-jsx.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
