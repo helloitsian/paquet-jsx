@@ -1,6 +1,6 @@
 {
   "name": "paquet-jsx",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A JSX parsing mutator for paquet.",
   "main": "paquet-jsx.js",
   "scripts": {
