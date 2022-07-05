@@ -1,4 +1,18 @@
 const ExpressionTest = () => {
   const message = "hello";
-  return <div>{message}</div>;
+  return (
+    <div>
+      <div>
+        {message}
+      </div>
+      <div>
+        {`${message}!`}
+      </div>
+      <div>
+        {`${message + "!"}`}
+      </div>
+    </div>
+  );
 }
+
+console.log(<ExpressionTest/>)
