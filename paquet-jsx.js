@@ -69,6 +69,9 @@ class PaquetJsx {
       t.objectExpression(
         attributes.map((attribute) => {
           const { name, value } = attribute;
+          if (value.type === "JSXExpressionContainer") {
+            return this.reduceJSXProp(attribute, t);
+          }
           return t.objectProperty(t.stringLiteral(name.name), value);
         })
       ),
