@@ -1,6 +1,6 @@
 {
   "name": "paquet-jsx",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "description": "A JSX parsing mutator for paquet.",
   "repository": {
     "type": "git",
@@ -8,7 +8,7 @@
   },
   "main": "paquet-jsx.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/index.js"
   },
   "author": "Ian Murawski (helloitsian)",
   "license": "ISC",

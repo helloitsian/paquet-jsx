@@ -1,4 +1,5 @@
 const babel = require("@babel/core");
+const { isCharUppercase } = require("./util.js");
 
 class PaquetJsx {
   constructor() {
@@ -10,50 +11,80 @@ class PaquetJsx {
     this.parseJsx = this.parseJsx.bind(this);
   }
 
-  reduceJSXExpression(expression, t) {
-    const { type } = expression;
+  // convert all functions to arrow functions
+  reduceFunctionExpression(expression, t) {
+    const {
+      params,
+      body,
+    } = expression;
 
-    if (type === "ConditionalExpression") {
-      const { test, consequent, alternate } = expression;
+    const paramsNames = params.map((param) => param.name);
+    
+    return t.arrowFunctionExpression(paramsNames, body);
+  }
 
-      return t.callExpression(t.identifier("__jsx"), [
-        t.conditionalExpression(test, consequent, alternate),
-      ]);
-    } else if (type === "Identifier") {
-      return t.callExpression(t.identifier("__jsx"), [
-        t.identifier(expression.name),
-      ]);
-    }
+  reduceJSXProp(attr, t) {
+    const { name, value } = attr;
+
+    let attrValue = value.expression
+    return t.objectProperty(t.stringLiteral(name.name), attrValue);
+  }
+
+  reduceJSXComponent({ name, attributes, children }, t) {
+    return t.callExpression(t.identifier(name), [
+      t.objectExpression(
+        attributes.map((attribute) => {
+          const { name, value } = attribute;
+          if (value.type === "JSXExpressionContainer") {
+            return this.reduceJSXProp(attribute, t);
+          }
+          return t.objectProperty(
+            t.identifier(name.name),
+            value ? t.stringLiteral(value.value) : t.nullLiteral()
+          );
+        })
+      ),
+      t.arrayExpression(
+        children.map((child) => {
+          return this.reduceJSXElement(child, t);
+        })
+      ),
+    ]);
   }
 
   reduceJSXElement(node, t) {
-    const { openingElement, closingElement } = node;
+    const { openingElement, type } = node;
     const { name } = openingElement.name;
     const { attributes } = openingElement;
     const { children } = node;
 
+    if (isCharUppercase(name[0])) {
+      return this.reduceJSXComponent({ name, attributes, children }, t);
+    }
+
+    console.log(type);
+
     return t.callExpression(t.identifier("__jsx"), [
-        t.stringLiteral(name),
-        t.objectExpression(
-          attributes.map((attribute) => {
-            const { name, value } = attribute;
-            return t.objectProperty(t.stringLiteral(name.name), value);
-          })
-        ),
-        t.arrayExpression(
-          children
-            .map((child) => {
-              if (child.type === "JSXText") {
-                return t.stringLiteral(child.value);
-              } else if (child.type === "JSXElement") {
-                const reducedChild = this.reduceJSXElement(child, t);
-                return reducedChild;
-              } else if (child.type === "JSXExpressionContainer") {
-                return this.reduceJSXExpression(child.expression, t);
-              }
-            })
-        ),
-      ]);
+      t.stringLiteral(name),
+      t.objectExpression(
+        attributes.map((attribute) => {
+          const { name, value } = attribute;
+          return t.objectProperty(t.stringLiteral(name.name), value);
+        })
+      ),
+      t.arrayExpression(
+        children.map((child) => {
+          if (child.type === "JSXText") {
+            return t.stringLiteral(child.value);
+          } else if (child.type === "JSXElement") {
+            const reducedChild = this.reduceJSXElement(child, t);
+            return reducedChild;
+          } else if (child.type === "JSXExpressionContainer") {
+            return child.expression;
+          }
+        })
+      ),
+    ]);
   }
 
   transformJSXNode(path, t) {
@@ -82,21 +113,24 @@ class PaquetJsx {
     });
 
     const __jsx = `(tag, attrs, children) => {
-      const node = {};
-      if (tag) {
-        node.tag = tag;
-        node.type = "Element",
-        node.attrs = attrs;
-        node.children = children;
-      } else {
-        node.type = "Text";
-      }
+      return {
+        tag,
+        type: "Element",
+        props: attrs,
+        children: children,
+      };
+    }`;
 
-      return node;
+    const __jsxText = `(text) => {
+      return {
+        type: "Text",
+        text,
+      }
     }`
 
     return `
       const __jsx = ${__jsx}
+      const __jsxText = ${__jsxText}
       ${newCode.code}
     `;
   }

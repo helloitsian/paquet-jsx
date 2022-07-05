@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 const PaquetJsx = require("../paquet-jsx.js");
 
 const plugin = new PaquetJsx();
@@ -14,7 +15,7 @@ const tests = [
 tests.forEach((test) => {
   console.log(`::: ${test.title} :::`);
   
-  const code = fs.readFileSync(test.path, "utf8");
+  const code = fs.readFileSync(path.resolve(path.join(__dirname, test.path)), "utf8");
   console.log("::: Base Code :::");
   console.log(code);
 

@@ -5,22 +5,13 @@ const ExpressionTest = () => {
   return (
     <div>
       <div>
-        {message}
+        {(() => "message")()}
       </div>
       <div>
-        {`${message}!`}
+        {"message"}
       </div>
       <div>
-        {`${message + "!"}`}
-      </div>
-      <div>
-        {"another message"}
-      </div>
-      <div>
-        {func(message)}
-      </div>
-      <div>
-        {condition ? "true" : "false"}
+        {2 + 2}
       </div>
     </div>
   );
