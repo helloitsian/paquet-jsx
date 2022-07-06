@@ -10,4 +10,4 @@ const Component = () => {
   </div>
 }
 
-console.log(<Component/>);
+console.log((<Component/>).type());

@@ -31,7 +31,6 @@ class PaquetJsx {
   }
 
   reduceJSXComponent({ name, attributes, children }, t) {
-    console.log("!!! NAME", t.identifier(name));
     return t.callExpression(t.identifier("__jsx"), [
       t.identifier(name), 
       t.objectExpression(
@@ -115,33 +114,32 @@ class PaquetJsx {
       ],
     });
 
-    const __jsx = `(type, attrs, children) => {
-      if (type instanceof Function) {
-        return {
-          tag: null,
-          type: type,
-          props: attrs,
-          children: null,
-        }
-      } else if (typeof type === "string") {
-        return{
-          tag: null,
-          type: "TEXT_NODE",
-          text: type,
-          props: null,
-          children: null,
-        }
-      }
+    const __jsxText = `(text) => {
       return {
-        tag,
-        type: "ELEMENT_NODE",
-        text: null,
-        props: attrs,
-        children: children,
+        type: "TEXT_ELEMENT",
+        props: {
+          nodeValue: text,
+          children: [],
+        },
       };
+    }`
+
+    const __jsx = `(type, props, children) => {
+      return {
+        type,
+        props: {
+          ...props,
+          children: children.map(child =>
+            typeof child === "object"
+              ? child
+              : __jsxText(child)
+          ),
+        },
+      }
     }`;
 
     return `
+      const __jsxText = ${__jsxText};
       const __jsx = ${__jsx};
       ${newCode.code}
     `;
