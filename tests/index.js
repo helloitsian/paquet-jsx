@@ -8,9 +8,9 @@ const tests = [
   // { title: "Simple Test", path: "./simple.test.js" },
   // { title: "Conditional Test", path: "./conditional.test.js" },
   // { title: "Expression Test", path: "./expression.test.js" },
-  // { title: "Nested Components", path: "./nested-component.test.js" },
+  { title: "Nested Components", path: "./nested-component.test.js" },
   // { title: "Props Test", path: "./props.test.js" },
-  { title: "onClick Test", path: "./onClick.test.js" },
+  // { title: "onClick Test", path: "./onClick.test.js" },
 ];
 
 tests.forEach((test) => {

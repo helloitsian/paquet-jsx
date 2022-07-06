@@ -31,7 +31,9 @@ class PaquetJsx {
   }
 
   reduceJSXComponent({ name, attributes, children }, t) {
-    return t.callExpression(t.identifier(name), [
+    console.log("!!! NAME", t.identifier(name));
+    return t.callExpression(t.identifier("__jsx"), [
+      t.identifier(name), 
       t.objectExpression(
         attributes.map((attribute) => {
           const { name, value } = attribute;
@@ -61,8 +63,6 @@ class PaquetJsx {
     if (isCharUppercase(name[0])) {
       return this.reduceJSXComponent({ name, attributes, children }, t);
     }
-
-    console.log(type);
 
     return t.callExpression(t.identifier("__jsx"), [
       t.stringLiteral(name),
@@ -115,25 +115,34 @@ class PaquetJsx {
       ],
     });
 
-    const __jsx = `(tag, attrs, children) => {
+    const __jsx = `(type, attrs, children) => {
+      if (type instanceof Function) {
+        return {
+          tag: null,
+          type: type,
+          props: attrs,
+          children: null,
+        }
+      } else if (typeof type === "string") {
+        return{
+          tag: null,
+          type: "TEXT_NODE",
+          text: type,
+          props: null,
+          children: null,
+        }
+      }
       return {
         tag,
-        type: "Element",
+        type: "ELEMENT_NODE",
+        text: null,
         props: attrs,
         children: children,
       };
     }`;
 
-    const __jsxText = `(text) => {
-      return {
-        type: "Text",
-        text,
-      }
-    }`
-
     return `
-      const __jsx = ${__jsx}
-      const __jsxText = ${__jsxText}
+      const __jsx = ${__jsx};
       ${newCode.code}
     `;
   }
